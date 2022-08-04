@@ -1042,7 +1042,7 @@ def main():
 
     roll_window_size = 15
     pitch_window_size = 19
-    yaw_window_size = 10
+    yaw_window_size = 3
     roll_avg = np.zeros(roll_window_size)
     pitch_avg = np.zeros(pitch_window_size)
     yaw_avg = np.zeros(yaw_window_size)
@@ -1082,20 +1082,39 @@ def main():
                 vel_x = sm.Physics.velocity.x
                 vel_z = sm.Physics.velocity.z
 
-                #TODO: Fix negative velocity issue
                 threshold = 0.1
                 if abs(vel_x) < threshold and abs(vel_z) < threshold:
                     vel_angle = heading
                 else:
                     vel_angle = -np.arctan2([vel_x], [vel_z])[0]
-                if vel_angle*heading >= 0:
-                    yaw = vel_angle - heading
-                # these signs may need to flip
-                elif vel_angle > 0:
-                    yaw = -(2*np.pi - vel_angle + heading)
-                else:
-                    yaw = 2*np.pi - vel_angle + heading
                 
+                # https://stackoverflow.com/questions/1878907/how-can-i-find-the-difference-between-two-angles#comment1927356_2007355 
+                
+                # seems to work, but doesn't yaw enough on drifts
+                # if vel_z < 0: 
+                #     a = (vel_angle - heading) % (np.pi)
+                #     b = (heading - vel_angle) % (np.pi)
+                # else:
+                a = (heading - vel_angle) % (np.pi)
+                b = (vel_angle - heading) % (np.pi)
+                yaw = -a if a<b else b
+
+                # discontinuous and computationally expensive
+                # yaw = np.arctan2(np.sin(vel_angle - heading), np.cos(vel_angle-heading))
+                
+                # Bad reversing performance
+                # yaw = min(vel_angle - heading, vel_angle - heading + 2*np.pi, vel_angle-heading-2*np.pi, key = abs)
+
+                # if vel_angle*heading >= 0:
+                #     #TODO: Fix negative velocity issue
+                #     yaw = vel_angle - heading
+                # # these signs may need to flip
+                # elif vel_angle > 0:
+                #     yaw = -(2*np.pi - vel_angle + heading)
+                # else:
+                #     yaw = 2*np.pi - vel_angle + heading
+                
+
                 x_accel = sm.Physics.g_force.x
                 z_accel = sm.Physics.g_force.z
                 if gear != previous_gear:
@@ -1118,6 +1137,7 @@ def main():
 
                 roll = max(min(roll, 29), -29)
                 pitch = max(min(pitch, 33), -33)
+                yaw = max(min(yaw, 29), -29)
 
                 roll = max(int(32767/58 * (roll + 29)), 0)
                 pitch = max(int(32767/66 * (pitch + 33)), 0)
@@ -1143,7 +1163,9 @@ def main():
                 final_yaw = int(yaw_scale_factor*sum(yaw_avg)/yaw_window_size)
                 # send frame
                 try:
+                    # moog.command_dof(roll=final_roll, pitch=final_pitch)
                     moog.command_dof(roll=final_roll, pitch=final_pitch, yaw=final_yaw)
+
                 except Exception as e: 
                     print(e)
             elapsed_time = time.time() - start_time
@@ -1157,20 +1179,3 @@ if __name__ == "__main__":
 
     main()
         
-
-
-                # jerk_tolerance = 101
-
-                # # if z_jerk > 0.6*9.81:
-                # #     current_surge = int(0.8*32767)
-                # # current_surge = max(int(32767/(1.2*9.81/dt) * (z_jerk + 0.6*9.81/dt)), 0)
-                # x = (0.5/10)*(z_jerk+5)-0.25
-                # current_surge = int((32767/0.5)*(x+0.25))
-                # if current_surge > 16383 + jerk_tolerance:
-                #     current_surge -= 100 #(current_surge - 16383)/
-                # elif current_surge < 16383 - jerk_tolerance:
-                #     current_surge += 100
-                # else:
-                #     current_surge = 16383 # neutral
-    
-    
