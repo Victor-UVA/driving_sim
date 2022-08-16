@@ -7,6 +7,7 @@
     1. Make sure all cables are plugged in
 3. Turn on the Battery Enable Switch at front of driving sim
 4. Plug in green 3 phase Power Cord
+5. Ensure E-Stop is disengaged
 ### Other
 1. Plug arduino into computer (labelled)
 2. Turn on projectors with remote
@@ -16,6 +17,12 @@
 
 ## Assetto Startup
 1. Open Assetto and begin a race with desired car and track
+    1. Click Main Menu
+    2. Click Drive
+    3. Select a car
+    4. Select a track
+    5. Change settings (manual, automatic, damage, etc.)
+    6. Click Start Engine
 2. Make sure to click the steering wheel at the top of the menu once it starts to begin
 
 ## Terminal Commands
@@ -32,4 +39,5 @@
         ``` python .\assetto_moog_control.py ```
 3. To kill in powershell run:
     ``` taskkill /F /IM python.exe ```
+    1. You will need to run this before restarting teh code if the base faults (as in an ESTOP)
 
