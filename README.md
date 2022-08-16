@@ -13,14 +13,14 @@
 
 ## Terminal Commands
 1. Open a terminal, and navigate to ~/Desktop/"Assetto Corsa Shared Memory"
-    a. In bash:
+    1. In bash:
         ``` cd ~/Desktop/"Assetto Corsa Shared Memory" ```
-    b. In powershell:
+    2. In powershell:
         ``` cd 'C:\Users\Drive Sim\Desktop\Assetto Corsa Shared Memory' ```
 2. Run assetto_moog_control.py
-    a. In bash:
+    1. In bash:
         ``` python assetto_moog_control.py ```
-    b. In powershell:
+    2. In powershell:
         ``` python .\assetto_moog_control.py ```
 3. To kill in powershell run:
     ``` taskkill /F /IM python.exe ```
