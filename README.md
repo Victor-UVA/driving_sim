@@ -3,7 +3,7 @@
 ## Powering On
 1. Turn on MOOG computer at back of driving sim
 2. Turn on Power Strip at front of driving sim
-    a. Make sure all cables are plugged in
+    1. Make sure all cables are plugged in
 3. Turn on the Battery Enable Switch at front of driving sim
 4. Plug in green 3 phase Power Cord
 
