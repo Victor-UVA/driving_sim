@@ -1071,7 +1071,7 @@ def main():
 
             gear = sm.Physics.gear
 
-            packet = "<RPM{}MPH{}SHIFT{}FUEL{}GEAR{}>".format(rpm, mph, int(shift), fuel, gear)
+            packet = "<RPM{}MPH{}SHIFT{}FUEL{}GEAR{}>".format(rpm, mph, int(shift), fuel, int(gear))
             tachometer_serial.write(packet.encode('utf-8'))
 
             if moog.is_engaged():
