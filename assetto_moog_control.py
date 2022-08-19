@@ -1182,7 +1182,7 @@ def main():
                 
 
                 x_accel = sm.Physics.g_force.x
-                z_accel = sm.Physics.g_force.z # added this factor cause shift change jolt isnt real
+                z_accel = sm.Physics.g_force.z/10 # added this factor cause shift change jolt isnt real
                 ## THIS IS STUPID from: jeronimo :)
                 # if gear != previous_gear:
                 #     z_accel /= 3
@@ -1192,7 +1192,7 @@ def main():
                 z_accel_limit = 1# 0.35 # Gs Max = 1
 
                 x_angle = np.arcsin(max(min(x_accel/9.81, x_accel_limit), -x_accel_limit))
-                z_angle = np.arcsin(max(min(z_accel/9.81, z_accel_limit), -z_accel_limit))
+                z_angle = np.arcsin(max(min(z_accel/9.81, z_accel_limit), -z_accel_limit))/10
 
                 z_angle = 0
 
