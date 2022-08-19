@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import mmap
+from pickle import FRAME
 import struct
 from dataclasses import dataclass
 from enum import Enum
@@ -1040,12 +1041,16 @@ def main():
     moog = MOOG()
     moog.initialize_platform()
 
-    roll_window_size = 15
-    pitch_window_size = 19
-    yaw_window_size = 3
+    ## reduced to make more realistic, too aggressive before
+
+    roll_window_size = 50
+    pitch_window_size = 50
+    yaw_window_size = 30
     roll_avg = np.zeros(roll_window_size)
     pitch_avg = np.zeros(pitch_window_size)
     yaw_avg = np.zeros(yaw_window_size)
+
+    cycle = 0 #for packet cycle to arduino
 
     index = 0
     initialized = False
@@ -1067,13 +1072,71 @@ def main():
 
             shift = (max_rpm - rpm) <= 800   
 
-            fuel = int(100 - (sm.Physics.fuel / sm.Static.max_fuel) * 100)
+            fuel = int((sm.Physics.fuel / sm.Static.max_fuel) * 100)
 
             gear = sm.Physics.gear
 
-            packet = "<RPM{}MPH{}SHIFT{}FUEL{}GEAR{}>".format(rpm, mph, int(shift), fuel, int(gear))
-            tachometer_serial.write(packet.encode('utf-8'))
+            #Charles Code----------------------------------------------------------------------------------
+            engine_status = 0
+            front = sm.Physics.car_damage.front
+            rear = sm.Physics.car_damage.rear
+            left = sm.Physics.car_damage.left
+            right = sm.Physics.car_damage.right
+            center = sm.Physics.car_damage.center
 
+            FL = sm.Physics.wheel_slip.front_left
+            FR = sm.Physics.wheel_slip.front_right
+            RL = sm.Physics.wheel_slip.rear_left
+            RR = sm.Physics.wheel_slip.rear_right
+
+            ab = sm.Physics.abs
+
+            FLP = sm.Physics.wheel_pressure.front_left
+            FRP = sm.Physics.wheel_pressure.front_right
+            RLP = sm.Physics.wheel_pressure.rear_left
+            RRP =  sm.Physics.wheel_pressure.rear_right
+            
+            #print("FLP = " + str (FLP) + " FRP = " + str (FRP))
+
+            if FL > 1 or FR > 1 or RL > 1 or RR > 1:
+                slip = 1
+            else:
+                slip = 0
+
+            if FLP > 17 or FRP > 17 or RLP > 17 or RRP > 17:
+                pressure = 1
+            else:
+                pressure = 0
+
+            #engine = sm.Physics.is_engine_running
+            if front > 50 or rear > 40 or left > 20 or right > 20 or center > 50:
+                engine_status = 0
+            else:
+                engine_status = 1
+
+            #print("front = " + str (front) + " rear = " + str (rear) + " left = " + str (left) + " right = " + str (right) + " center = " + str (center)  + " engine = " + str (engine))
+            #print (engine_status)
+            #fuel = 0
+
+            #print(pressure)
+
+            if cycle == 0:
+                packet = "<C{}R{}M{}S{}F{}G{}E{}L{}>".format(int(cycle), rpm, mph, int(shift), fuel, int(gear), int(engine_status), int(slip))
+                cycle = 1
+
+            elif cycle == 1:
+                packet = "<C{}R{}A{}P{}>".format(int(cycle), rpm, int(ab), int(pressure))
+                cycle = 0
+            
+            #else:
+                #cycle = 0
+            #print("packet = " + str (packet) + " cycle = " + str (cycle))
+            #print("current" + str (sm.Physics.fuel))
+            #print("MAX:" + str (sm.Static.max_fuel))
+            #print(fuel)
+
+            tachometer_serial.write(packet.encode('utf-8'))
+            
             if moog.is_engaged():
 
                 roll = sm.Physics.roll
@@ -1083,6 +1146,9 @@ def main():
                 vel_z = sm.Physics.velocity.z
 
                 threshold = 0.1
+                # print(threshold)
+                # print(vel_x)
+                # print(vel_z)
                 if abs(vel_x) < threshold and abs(vel_z) < threshold:
                     vel_angle = heading
                 else:
@@ -1116,10 +1182,11 @@ def main():
                 
 
                 x_accel = sm.Physics.g_force.x
-                z_accel = sm.Physics.g_force.z
-                if gear != previous_gear:
-                    z_accel /= 3
-                previous_gear = gear
+                z_accel = sm.Physics.g_force.z # added this factor cause shift change jolt isnt real
+                ## THIS IS STUPID from: jeronimo :)
+                # if gear != previous_gear:
+                #     z_accel /= 3
+                # previous_gear = gear
 
                 x_accel_limit = 1# 0.35 # Gs Max = 1
                 z_accel_limit = 1# 0.35 # Gs Max = 1
@@ -1127,13 +1194,21 @@ def main():
                 x_angle = np.arcsin(max(min(x_accel/9.81, x_accel_limit), -x_accel_limit))
                 z_angle = np.arcsin(max(min(z_accel/9.81, z_accel_limit), -z_accel_limit))
 
+                z_angle = 0
+
                 roll = roll + -x_angle
 
                 pitch = -pitch + -z_angle
 
-                roll = roll * 180 / np.pi 
-                pitch = pitch * 180 / np.pi
-                yaw = yaw * 180 / np.pi
+                ## moved scale factors from below, they were in the wrong place
+                scale = 1.0
+                roll_scale_factor = 1.0*scale
+                pitch_scale_factor = 1.0*scale
+                yaw_scale_factor = 1.0*scale
+
+                roll = roll_scale_factor * roll * 180 / np.pi 
+                pitch = pitch_scale_factor * pitch * 180 / np.pi
+                yaw = yaw_scale_factor * yaw * 180 / np.pi
 
                 roll = max(min(roll, 29), -29)
                 pitch = max(min(pitch, 33), -33)
@@ -1153,14 +1228,12 @@ def main():
                 yaw_avg[index % yaw_window_size] = yaw
 
                 index += 1              
+                ## moved scale factors above, they were in the wrong place
+                final_roll = int(sum(roll_avg)/roll_window_size)
+                final_pitch = int(sum(pitch_avg)/pitch_window_size)
+                final_yaw = int(sum(yaw_avg)/yaw_window_size)
 
-                roll_scale_factor = 1.0
-                pitch_scale_factor = 1.0
-                yaw_scale_factor = 1.0
-
-                final_roll = int(roll_scale_factor*sum(roll_avg)/roll_window_size)
-                final_pitch = int(pitch_scale_factor*sum(pitch_avg)/pitch_window_size)
-                final_yaw = int(yaw_scale_factor*sum(yaw_avg)/yaw_window_size)
+                # print("(" + str(final_roll) + ", " + str(final_pitch) + ", " + str(final_yaw) + ")")
                 # send frame
                 try:
                     # moog.command_dof(roll=final_roll, pitch=final_pitch)
