@@ -1082,7 +1082,7 @@ def main():
                 vel_x = sm.Physics.velocity.x
                 vel_z = sm.Physics.velocity.z
 
-                threshold = 0.1
+                threshold = 0.5 # changed from 0.1
                 if abs(vel_x) < threshold and abs(vel_z) < threshold:
                     vel_angle = heading
                 else:
@@ -1117,9 +1117,9 @@ def main():
 
                 x_accel = sm.Physics.g_force.x
                 z_accel = sm.Physics.g_force.z
-                if gear != previous_gear:
-                    z_accel /= 3
-                previous_gear = gear
+                # if gear != previous_gear:
+                #     z_accel /= 3
+                # previous_gear = gear
 
                 x_accel_limit = 1# 0.35 # Gs Max = 1
                 z_accel_limit = 1# 0.35 # Gs Max = 1

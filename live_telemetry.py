@@ -43,18 +43,18 @@ def animate(i, timestamps, g_force_x, g_force_y, g_force_z, gear, brake, vel_hea
         vel_x = sm.Physics.velocity.x
         vel_z = sm.Physics.velocity.z
 
-        threshold = 0.1
-        if abs(vel_x) < threshold and abs(vel_z) < threshold:
-            vel_angle = heading
-        else:
-            vel_angle = -np.arctan2([vel_x], [vel_z])[0]
-        if vel_angle*heading >= 0:
-            yaw = vel_angle - heading
-        # these signs may need tso flip
-        elif vel_angle > 0:
-            yaw = -(2*np.pi - vel_angle + heading)
-        else:
-            yaw = 2*np.pi - vel_angle + heading
+        # threshold = 0.1
+        # if abs(vel_x) < threshold and abs(vel_z) < threshold:
+        #     vel_angle = heading
+        # else:
+        #     vel_angle = -np.arctan2([vel_x], [vel_z])[0]
+        # if vel_angle*heading >= 0:
+        #     yaw = vel_angle - heading
+        # # these signs may need tso flip
+        # elif vel_angle > 0:
+        #     yaw = -(2*np.pi - vel_angle + heading)
+        # else:
+        #     yaw = 2*np.pi - vel_angle + heading
 
         threshold = 0.01
         if sm.Physics.velocity.x < threshold and sm.Physics.velocity.z < threshold:
@@ -90,10 +90,10 @@ def animate(i, timestamps, g_force_x, g_force_y, g_force_z, gear, brake, vel_hea
     ax1.plot(timestamps, g_force_y, label="G Force Y")
     ax1.plot(timestamps, g_force_z, label="G Force Z")
 
-    ax2.clear()
-    # ax2.plot(timestamps, gear, label="Gear")
-    ax2.plot(timestamps, vel_heading, label="Vel Heading")
-    ax2.plot(timestamps, heading, label="Heading")
+    # ax2.clear()
+    # # ax2.plot(timestamps, gear, label="Gear")
+    # ax2.plot(timestamps, vel_heading, label="Vel Heading")
+    # ax2.plot(timestamps, heading, label="Heading")
 
     
     # Format plot
@@ -104,10 +104,10 @@ def animate(i, timestamps, g_force_x, g_force_y, g_force_z, gear, brake, vel_hea
     ax1.set_xlabel('Time')
     ax1.legend()
     
-    ax2.set_title("Headings")
-    ax2.set_ylabel('Radians')
-    ax2.set_xlabel('Time')
-    ax2.legend()
+    # ax2.set_title("Headings")
+    # ax2.set_ylabel('Radians')
+    # ax2.set_xlabel('Time')
+    # ax2.legend()
 
 
 stage_screen()
