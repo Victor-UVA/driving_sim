@@ -1028,21 +1028,21 @@ def stage_screen():
 
 
 def main():
-    tachometer_serial = serial.Serial(
-        port = 'COM4',
-        baudrate = 115200,
-        timeout=0,
-        rtscts=True
-    )
+    # tachometer_serial = serial.Serial(
+    #     port = 'COM4',
+    #     baudrate = 115200,
+    #     timeout=0,
+    #     rtscts=True
+    # )
     time.sleep(1)
     stage_screen()
     asm = accSharedMemory()
     moog = MOOG()
     moog.initialize_platform()
 
-    roll_window_size = 15
-    pitch_window_size = 19
-    yaw_window_size = 3
+    roll_window_size = 16
+    pitch_window_size = 18
+    yaw_window_size = 4
     roll_avg = np.zeros(roll_window_size)
     pitch_avg = np.zeros(pitch_window_size)
     yaw_avg = np.zeros(yaw_window_size)
@@ -1060,7 +1060,7 @@ def main():
             
             # Tachometer Interface
             max_rpm = sm.Static.max_rpm
-            rpm = round(sm.Physics.rpm/100)*100
+            rpm = round(sm.Physics.rpm/100)*100 # why?
 
             kmh = sm.Physics.speed_kmh
             mph = int(kmh/1.60934)
@@ -1072,7 +1072,7 @@ def main():
             gear = sm.Physics.gear
 
             packet = "<RPM{}MPH{}SHIFT{}FUEL{}GEAR{}>".format(rpm, mph, int(shift), fuel, int(gear))
-            tachometer_serial.write(packet.encode('utf-8'))
+            # tachometer_serial.write(packet.encode('utf-8'))
 
             if moog.is_engaged():
 
