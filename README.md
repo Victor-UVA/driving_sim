@@ -41,3 +41,8 @@
     ``` taskkill /F /IM python.exe ```
     1. You will need to run this before restarting teh code if the base faults (as in an ESTOP)
 
+## Powering Down
+1. Kill all python processes as shown in terminal commands
+2. Close out Assetto Corsa
+3. Reverse all instructions from **Powering On**
+
