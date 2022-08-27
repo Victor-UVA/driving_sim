@@ -50,9 +50,9 @@ def main():
 
         if sm is not None:
 
-            # Tachometer Interface
+            # Tachometer Interface -- TODO: Put in own process
             max_rpm = sm.Static.max_rpm
-            rpm = round(sm.Physics.rpm/100)*100  # why?
+            rpm = round(sm.Physics.rpm/100)*100  # TODO: why?
 
             kmh = sm.Physics.speed_kmh
             mph = int(kmh/1.60934)
@@ -148,8 +148,14 @@ def main():
 
                 x_accel = sm.Physics.g_force.x
                 z_accel = sm.Physics.g_force.z
+
+                gear_dampening_scale_factor = 3
                 if gear != previous_gear:
-                    z_accel /= 3
+                    gear_dampening_window_size = 5
+                # TODO: Test this
+                if gear_dampening_window_size > 0:
+                    z_accel /= gear_dampening_scale_factor
+                    gear_dampening_window_size -= 1
                 previous_gear = gear
 
                 x_accel_limit = 1
