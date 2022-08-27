@@ -5,6 +5,24 @@ import pygetwindow as gw
 import serial
 import numpy as np
 
+# Tunable Parameters
+roll_window_size = 16  # proposed 50
+pitch_window_size = 18  # proposed 50
+yaw_window_size = 4  # proposed 30
+
+yaw_vel_threshold = 0.5
+
+gear_dampening_scale_factor = 3
+gear_dampening_window_size = 10
+
+dof_scale = 1.0
+roll_scale_factor = 1.0*dof_scale
+pitch_scale_factor = 1.0*dof_scale
+yaw_scale_factor = 1.0*dof_scale
+
+x_accel_limit = 1  # Gs
+z_accel_limit = 1  # Gs
+
 
 def stage_screen():
     windows = gw.getAllWindows()
@@ -33,14 +51,12 @@ def main():
     moog = MOOG()
     moog.initialize_platform()
 
-    roll_window_size = 16  # proposed 50
-    pitch_window_size = 18  # proposed 50
-    yaw_window_size = 4  # proposed 30
     roll_avg = np.zeros(roll_window_size)
     pitch_avg = np.zeros(pitch_window_size)
     yaw_avg = np.zeros(yaw_window_size)
 
     index = 0
+    gear_dampening_index = 0
     initialized = False
     frequency = 960  # Hz
     previous_gear = 0
@@ -134,8 +150,7 @@ def main():
                 vel_x = sm.Physics.velocity.x
                 vel_z = sm.Physics.velocity.z
 
-                threshold = 0.5
-                if abs(vel_x) < threshold and abs(vel_z) < threshold:
+                if abs(vel_x) < yaw_vel_threshold and abs(vel_z) < yaw_vel_threshold:
                     vel_angle = heading
                 else:
                     vel_angle = -np.arctan2([vel_x], [vel_z])[0]
@@ -149,17 +164,13 @@ def main():
                 x_accel = sm.Physics.g_force.x
                 z_accel = sm.Physics.g_force.z
 
-                gear_dampening_scale_factor = 3
                 if gear != previous_gear:
-                    gear_dampening_window_size = 5
+                    gear_dampening_index = gear_dampening_window_size
                 # TODO: Test this
-                if gear_dampening_window_size > 0:
+                if gear_dampening_index > 0:
                     z_accel /= gear_dampening_scale_factor
-                    gear_dampening_window_size -= 1
+                    gear_dampening_index -= 1
                 previous_gear = gear
-
-                x_accel_limit = 1
-                z_accel_limit = 1
 
                 x_angle = np.arcsin(
                     max(min(x_accel/9.81, x_accel_limit), -x_accel_limit))
@@ -169,11 +180,6 @@ def main():
                 roll = roll + -x_angle
 
                 pitch = -pitch + -z_angle
-
-                scale = 1.0
-                roll_scale_factor = 1.0*scale
-                pitch_scale_factor = 1.0*scale
-                yaw_scale_factor = 1.0*scale
 
                 roll = roll_scale_factor * roll * 180 / np.pi
                 pitch = pitch_scale_factor * pitch * 180 / np.pi
