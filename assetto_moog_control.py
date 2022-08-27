@@ -23,6 +23,8 @@ yaw_scale_factor = 1.0*dof_scale
 x_accel_limit = 1  # Gs
 z_accel_limit = 1  # Gs
 
+shift_rpm_threshold = 800
+
 
 def stage_screen():
     windows = gw.getAllWindows()
@@ -43,7 +45,8 @@ def main():
             rtscts=True
         )
     except:
-        print("Cannot detect tachometer Arduino. Please ensure it is plugged in")
+        print(
+            "Cannot detect tachometer Arduino. Please ensure it is plugged in and try again")
         return -1
     time.sleep(1)
     stage_screen()
@@ -73,7 +76,7 @@ def main():
             kmh = sm.Physics.speed_kmh
             mph = int(kmh/1.60934)
 
-            shift = (max_rpm - rpm) <= 800
+            shift = (max_rpm - rpm) <= shift_rpm_threshold
 
             fuel = int(100 - (sm.Physics.fuel / sm.Static.max_fuel) * 100)
 
@@ -99,8 +102,6 @@ def main():
             RLP = sm.Physics.wheel_pressure.rear_left
             RRP = sm.Physics.wheel_pressure.rear_right
 
-            #print("FLP = " + str (FLP) + " FRP = " + str (FRP))
-
             if FL > 1 or FR > 1 or RL > 1 or RR > 1:
                 slip = 1
             else:
@@ -111,34 +112,20 @@ def main():
             else:
                 pressure = 0
 
-            #engine = sm.Physics.is_engine_running
             if front > 50 or rear > 40 or left > 20 or right > 20 or center > 50:
                 engine_status = 0
             else:
                 engine_status = 1
 
-            #print("front = " + str (front) + " rear = " + str (rear) + " left = " + str (left) + " right = " + str (right) + " center = " + str (center)  + " engine = " + str (engine))
-            #print (engine_status)
-            #fuel = 0
-
-            # print(pressure)
-
+            # TODO: what does this do?
             if cycle == 0:
                 packet = "<C{}R{}M{}S{}F{}G{}E{}L{}>".format(int(cycle), rpm, mph, int(
                     shift), fuel, int(gear), int(engine_status), int(slip))
                 cycle = 1
-
             elif cycle == 1:
                 packet = "<C{}R{}A{}P{}>".format(
                     int(cycle), rpm, int(ab), int(pressure))
                 cycle = 0
-
-            # else:
-                #cycle = 0
-            #print("packet = " + str (packet) + " cycle = " + str (cycle))
-            #print("current" + str (sm.Physics.fuel))
-            #print("MAX:" + str (sm.Static.max_fuel))
-            # print(fuel)
 
             tachometer_serial.write(packet.encode('utf-8'))
 
