@@ -6,13 +6,13 @@ import serial
 import numpy as np
 
 # Tunable Parameters
-roll_window_size = 16  # proposed 50
-pitch_window_size = 18  # proposed 50
-yaw_window_size = 4  # proposed 30
+roll_window_size = 24  # proposed 50 / old 16
+pitch_window_size = 27  # proposed 50 / old 18
+yaw_window_size = 10  # proposed 30 / old 4
 
 yaw_vel_threshold = 0.5
 
-gear_dampening_scale_factor = 3
+gear_dampening_scale_factor = 4
 gear_dampening_window_size = 10
 
 dof_scale = 1.0
@@ -63,6 +63,7 @@ def main():
     initialized = False
     frequency = 960  # Hz
     previous_gear = 0
+    cycle = 0
     while True:
         start_time = time.time()
         sm = asm.read_shared_memory()
