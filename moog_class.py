@@ -263,7 +263,7 @@ class MOOG():
     def command(self, command_type, commands=None):
         if commands is None:
             self.text_output = 'No actuator values provided. Will use default for current mode...'
-            if self.mode:
+            if self.mode: # checks for DOF mode
                 commands = [16383, 16383, 29000, 16383, 16383, 16383]
             else: 
                 commands = [1024, 1024, 1024, 1024, 1024, 1024]

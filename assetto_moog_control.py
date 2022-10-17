@@ -8,12 +8,12 @@ import numpy as np
 # Tunable Parameters
 roll_window_size = 24  # proposed 50 / old 16
 pitch_window_size = 27  # proposed 50 / old 18
-yaw_window_size = 10  # proposed 30 / old 4
+yaw_window_size = 15  # proposed 30 / old 4
 
 yaw_vel_threshold = 0.5
 
-gear_dampening_scale_factor = 4
-gear_dampening_window_size = 10
+gear_dampening_scale_factor = 4 # 4 and 10 completelt got rid of it. Maybe we still want some?
+gear_dampening_window_size = 8
 
 dof_scale = 1.0
 roll_scale_factor = 1.0*dof_scale
@@ -128,7 +128,7 @@ def main():
                     int(cycle), rpm, int(ab), int(pressure))
                 cycle = 0
 
-            tachometer_serial.write(packet.encode('utf-8'))
+            # tachometer_serial.write(packet.encode('utf-8'))
 
             if moog.is_engaged():
 
@@ -204,8 +204,9 @@ def main():
                     print(e)
             elapsed_time = time.time() - start_time
             sleep_time = 1/frequency - elapsed_time
-            if sleep_time > 0:
-                time.sleep(sleep_time)
+            # TESTING IF SLEEP IS NECESSARY -- I don't think it is?
+            # if sleep_time > 0:
+            #     time.sleep(sleep_time)
 
     asm.close()
 
