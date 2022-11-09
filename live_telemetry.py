@@ -7,8 +7,8 @@ import numpy as np
 import time
 
 fig = plt.figure()
-ax1 = plt.subplot(121)
-ax2 = plt.subplot(122)
+ax1 = plt.subplot()
+# ax2 = plt.subplot(122)
 asm = accSharedMemory()
 
 timestamps = []
