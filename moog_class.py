@@ -240,7 +240,7 @@ class MOOG():
         else:
             self.text_output = 'INHIBIT valid only in IDLE, POWERUP states'
 
-
+    # heave between 6550-29000
     def command_dof(self, roll=16383, pitch=16383, heave=29000, surge=16383, yaw=16383, lateral=16383):
         if self.mode:
             self.command('NEW POSITION', [roll, pitch, heave, surge, yaw, lateral])
