@@ -1,0 +1,6 @@
+[submodule "XPlaneUDP"]
+	path = XPlaneUDP
+	url = https://github.com/charlylima/XPlaneUDP
+[submodule "PyAccSharedMemory"]
+	path = PyAccSharedMemory
+	url = https://github.com/rrennoir/PyAccSharedMemory
