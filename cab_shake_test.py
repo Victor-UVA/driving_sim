@@ -26,11 +26,6 @@ def main():
         moog.command_dof(heave= int(point))
         time.sleep(sleep_time)
 
-        
-    
-
-
-
 # def rough_loop():
 #     while True:{
 #         for pos in np.arange(32767, 0, -step_size):
