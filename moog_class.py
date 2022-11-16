@@ -36,7 +36,7 @@ class MOOG():
         # Initial command to begin communication with the platform
         self._command = b"\xff\x82\x43\x00\x04\x00\x04\x00\x04\x00\x04\x00\x04\x00\x04\x29\x00"
         self._prev_command = self._command
-        
+        self._command_buffer = []
         self.state = 'POWERUP'
         self.states = {
             0b0000 : 'POWERUP', # Also POWER_UP in manual
@@ -63,6 +63,9 @@ class MOOG():
     def communication_loop(self): # publish current command at 60 Hz
         while threading.main_thread().is_alive():
             start_time = time.time()
+            if len(self._command_buffer):
+                self._prev_command = self._command
+                self._command = self._command_buffer.pop(0)
             self.communicate()
             elapsed_time = time.time() -start_time
             # wait to publish at 60 Hz
@@ -241,9 +244,9 @@ class MOOG():
             self.text_output = 'INHIBIT valid only in IDLE, POWERUP states'
 
     # heave between 6550-29000
-    def command_dof(self, roll=16383, pitch=16383, heave=29000, surge=16383, yaw=16383, lateral=16383):
+    def command_dof(self, roll=16383, pitch=16383, heave=29000, surge=16383, yaw=16383, lateral=16383, buffer=False):
         if self.mode:
-            self.command('NEW POSITION', [roll, pitch, heave, surge, yaw, lateral])
+            self.command('NEW POSITION', [roll, pitch, heave, surge, yaw, lateral], buffer=buffer)
         else:
             self.text_output = 'Command rejected: Base currently in Length Mode'
 
@@ -260,12 +263,18 @@ class MOOG():
         self._command = new_command
 
 
-    def command(self, command_type, commands=None):
+    def command(self, command_type, commands=None, buffer=False):
         if commands is None:
             self.text_output = 'No actuator values provided. Will use default for current mode...'
             if self.mode: # checks for DOF mode
                 commands = [16383, 16383, 29000, 16383, 16383, 16383]
             else: 
                 commands = [1024, 1024, 1024, 1024, 1024, 1024]
-        self.set_command(self.build_frame(command_type, commands))
+        frame = self.build_frame(command_type, commands)
+        if buffer:
+            self._command_buffer.append(frame)
+        else:
+            self.set_command(frame)
+
+    
 

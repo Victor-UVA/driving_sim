@@ -2,6 +2,7 @@ from moog_class import MOOG
 import pygetwindow as gw
 import time
 import numpy as np
+from XPlaneUdp import *
 
 # Tunable Parameters
 roll_window_size = 25  # proposed 50 / old 16
@@ -24,11 +25,40 @@ def stage_screen():
     assetto_window.moveTo(2314, 0)
     assetto_window.resizeTo(4900, 1047)
 
+  
+
 
 def main():
     stage_screen()
     moog = MOOG()
     moog.initialize_platform()
+    xp = XPlaneUdp()
+    try:
+        beacon = xp.FindIp()
+        print(beacon)
+        # "sim/cockpit2/controls/total_pitch_ratio"
+        # "sim/cockpit2/controls/total_roll_ratio"
+        #  sim/cockpit2/gauges/indicators/
+
+        
+        xp.AddDataRef("sim/flightmodel/position/indicated_airspeed", freq=1)
+        xp.AddDataRef("sim/flightmodel/position/latitude")
+        
+        while True:
+            try:
+                values = xp.GetValues()
+                print(values)
+            except XPlaneTimeout:
+                print("XPlane Timeout")
+                exit(0)
+
+    except XPlaneVersionNotSupported:
+        print("XPlane Version not supported.")
+        exit(0)
+
+    except XPlaneIpNotFound:
+        print("XPlane IP not found. Probably there is no XPlane running in your local network.")
+        exit(0)
 
     roll_avg = np.zeros(roll_window_size)
     pitch_avg = np.zeros(pitch_window_size)
