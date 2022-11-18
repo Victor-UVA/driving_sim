@@ -6,12 +6,13 @@ import matplotlib.animation as animation
 
 neutral_heave = 29000
 
-amplitude = 11136/16
+amplitude = 110
+sleep_time = 0.2 # 0.2 = borderline acceptable
 duration = 30 # s 
-frequency = 60 # Hz
-period = 1/frequency # s
+resolution = 600 # Hz
+period = 1/resolution # s
 
-samples= np.linspace(0, duration, frequency*duration) #s
+samples= np.linspace(0, duration, resolution*duration) #s
 wave = amplitude*np.sin(2*np.pi*4*samples) + 16383 
 
 
@@ -20,7 +21,35 @@ ax1 = plt.subplot()
 
 moog = MOOG()
 
-# timestamps = []
+
+def main():
+    moog.override_frequency(60)
+    moog.initialize_platform()
+
+
+    while True:
+        moog.command_dof(heave = 16383 + amplitude)
+        time.sleep(sleep_time)
+        moog.command_dof(heave = 16383 - amplitude)
+        time.sleep(sleep_time)
+
+
+        
+    # for point in wave:
+    #     print("Sent:" + str(int(point)))
+    #     moog.command_dof(heave= int(point), buffer=True)
+      
+    # while moog.is_engaged():
+    #     pass
+
+
+
+if __name__ == "__main__":
+
+    main()
+
+
+    # timestamps = []
 # points = []
 # datapoints = 60
 
@@ -42,27 +71,7 @@ moog = MOOG()
 #     ax1.set_xlabel('Time')
 
 
-
-def main():
-    moog.initialize_platform()
-
+        
     # ani = animation.FuncAnimation(fig, animate, fargs=(timestamps, points, wave), interval = period*1000)
     # ax1.plot(samples, wave)
     # plt.show()
-
-    for point in wave:
-        # start_time = time.time()
-        # print(point)
-        moog.command_dof(heave= int(point), buffer=True)
-        # elapsed_time = time.time() - start_time
-        # sleep_time = period - elapsed_time
-        # if sleep_time > 0:
-        #     time.sleep(sleep_time)
-    while moog.is_engaged():
-        pass
-
-
-
-if __name__ == "__main__":
-
-    main()

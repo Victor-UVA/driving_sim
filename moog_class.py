@@ -55,7 +55,9 @@ class MOOG():
         
         self.current_actuator_commands = [1024, 1024, 1024, 1024, 1024, 1024]
 
-
+        self._frequency = 60
+        self._period = 1/self._frequency
+        self._initialized = False
         communication_loop = threading.Thread(target=self.communication_loop)
         communication_loop.start()
         time.sleep(2)
@@ -63,16 +65,22 @@ class MOOG():
     def communication_loop(self): # publish current command at 60 Hz
         while threading.main_thread().is_alive():
             start_time = time.time()
-            if len(self._command_buffer):
+            if len(self._command_buffer) and self._initialized:
                 self._prev_command = self._command
                 self._command = self._command_buffer.pop(0)
+                # print("Received:" +  str(int((self._command >> 64) & 0xFFFF)))
             self.communicate()
             elapsed_time = time.time() -start_time
-            # wait to publish at 60 Hz
-            sleep_time = 1/60 - elapsed_time
+            # wait to publish at freq Hz
+            sleep_time = self._period - elapsed_time
             if sleep_time > 0:
                 time.sleep(sleep_time)
         self.park()
+
+    # min = 15 max = 120
+    def override_frequency(self, new_freq):
+        self._frequency = new_freq
+        self._period = 1/self._frequency
 
 
     def communicate(self):
@@ -165,7 +173,7 @@ class MOOG():
         while self.state != 'ENGAGED':
             time.sleep(float(2/6000))
             self.command_dof()
-
+        self._initialized = True
 
     def e_stop(self):
         if self.state != 'IDLE':
