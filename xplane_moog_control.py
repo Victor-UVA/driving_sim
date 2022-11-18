@@ -19,7 +19,7 @@ yaw_scale_factor = 1.0*dof_scale
 def stage_screen():
     windows = gw.getAllWindows()
     for window in windows:
-        if window.title == 'Assetto Corsa':
+        if window.title == 'X-System':
             assetto_window: gw.Win32Window = window
             break
     assetto_window.moveTo(2314, 0)
@@ -41,8 +41,8 @@ def main():
         # sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot
         # sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot
         
-        xp.AddDataRef("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
-        xp.AddDataRef("sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot")
+        xp.AddDataRef("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot", 1000)
+        xp.AddDataRef("sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot", 1000)
         
         roll_avg = np.zeros(roll_window_size)
         pitch_avg = np.zeros(pitch_window_size)
@@ -56,7 +56,7 @@ def main():
 
             try:
                 values = xp.GetValues()
-                print(values)
+                # print(values)
             except XPlaneTimeout:
                 print("XPlane Timeout")
                 exit(0)
@@ -65,9 +65,9 @@ def main():
                 pitch = values["sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot"]
                 yaw = 0
                 
-                roll = roll_scale_factor * roll * 180 / np.pi
-                pitch = pitch_scale_factor * pitch * 180 / np.pi
-                yaw = yaw_scale_factor * yaw * 180 / np.pi
+                roll = roll_scale_factor * roll 
+                pitch = pitch_scale_factor * pitch 
+                yaw = yaw_scale_factor * yaw 
 
                 roll = max(min(roll, 29), -29)
                 pitch = max(min(pitch, 33), -33)
