@@ -5,8 +5,8 @@ import numpy as np
 from XPlaneUdp import *
 
 # Tunable Parameters
-roll_window_size = 50  # proposed 50 / old 16
-pitch_window_size = 50  # proposed 50 / old 18
+roll_window_size = 25  # proposed 50 / old 16
+pitch_window_size = 25  # proposed 50 / old 18
 yaw_window_size = 15  # proposed 30 / old 4
 
 yaw_vel_threshold = 0.5
