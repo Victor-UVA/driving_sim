@@ -4,8 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-neutral_heave = 29000
-
 amplitude = 110
 sleep_time = 0.2 # 0.2 = borderline acceptable
 duration = 30 # s 
@@ -32,7 +30,7 @@ def main():
         time.sleep(sleep_time)
         moog.command_dof(heave = 16383 - amplitude)
         time.sleep(sleep_time)
-
+    moog.park()
 
         
     # for point in wave:
@@ -49,7 +47,7 @@ if __name__ == "__main__":
     main()
 
 
-    # timestamps = []
+# timestamps = []
 # points = []
 # datapoints = 60
 

@@ -63,6 +63,7 @@ class MOOG():
         time.sleep(2)
 
     def communication_loop(self): # publish current command at 60 Hz
+        # TODO: Add a lock to ensure that command is not changing while being sent
         while threading.main_thread().is_alive():
             start_time = time.time()
             if len(self._command_buffer) and self._initialized:
@@ -251,7 +252,7 @@ class MOOG():
         else:
             self.text_output = 'INHIBIT valid only in IDLE, POWERUP states'
 
-    # heave between 6550-29000
+    
     def command_dof(self, roll=16383, pitch=16383, heave=29000, surge=16383, yaw=16383, lateral=16383, buffer=False):
         if self.mode:
             self.command('NEW POSITION', [roll, pitch, heave, surge, yaw, lateral], buffer=buffer)
@@ -267,6 +268,7 @@ class MOOG():
 
 
     def set_command(self, new_command):
+        # TODO: Lock
         self._prev_command = self._command
         self._command = new_command
 
