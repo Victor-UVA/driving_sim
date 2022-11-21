@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 amplitude = 110
-sleep_time = 0.2 # 0.2 = borderline acceptable
+sleep_time = 0.18 # 0.18 / 0.2 = borderline acceptable
 duration = 30 # s 
 resolution = 600 # Hz
 period = 1/resolution # s
@@ -19,16 +19,17 @@ ax1 = plt.subplot()
 
 moog = MOOG()
 
-
+neutral = 29000 # old = 16383
 def main():
     moog.override_frequency(60)
     moog.initialize_platform()
 
+    start_time = time.time()
 
-    while True:
-        moog.command_dof(heave = 16383 + amplitude)
+    while time.time() < start_time + 14400:
+        moog.command_dof(heave = neutral + amplitude)
         time.sleep(sleep_time)
-        moog.command_dof(heave = 16383 - amplitude)
+        moog.command_dof(heave = neutral - amplitude)
         time.sleep(sleep_time)
     moog.park()
 

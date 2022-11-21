@@ -259,7 +259,17 @@ class MOOG():
         else:
             self.text_output = 'Command rejected: Base currently in Length Mode'
 
+    def command_dof_degrees(self, roll=0, pitch=0, heave=29000, surge=16383, yaw=0, lateral=16383, buffer=False):
+        roll = max(min(roll, 29), -29)
+        pitch = max(min(pitch, 33), -33)
+        yaw = max(min(yaw, 29), -29)
 
+        roll = max(int(32767/58 * (roll + 29)), 0)
+        pitch = max(int(32767/66 * (pitch + 33)), 0)
+        yaw = max(int(32767/58 * (yaw + 29)), 0)
+        
+        self.command_dof(roll, pitch, heave, surge, yaw, lateral, buffer)
+    
     def command_length(self, a=1024, b=1024, c=1024, d=1024, e=1024, f=1024):
         if not self.mode:
             self.command('NEW POSITION', [a, b, c, d, e, f])

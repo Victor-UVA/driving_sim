@@ -5,8 +5,8 @@ import numpy as np
 from XPlaneUdp import *
 
 # Tunable Parameters
-roll_window_size = 25  # proposed 50 / old 16
-pitch_window_size = 30  # proposed 50 / old 18
+roll_window_size = 50  # proposed 50 / old 16
+pitch_window_size = 50  # proposed 50 / old 18
 yaw_window_size = 15  # proposed 30 / old 4
 
 yaw_vel_threshold = 0.5
@@ -16,40 +16,23 @@ roll_scale_factor = 1.0*dof_scale
 pitch_scale_factor = 1.0*dof_scale
 yaw_scale_factor = 1.0*dof_scale
 
-def stage_screen():
-    windows = gw.getAllWindows()
-    for window in windows:
-        if window.title == 'X-System':
-            assetto_window: gw.Win32Window = window
-            break
-    assetto_window.moveTo(2314, 0)
-    assetto_window.resizeTo(4900, 1047)
-
-  
-
 
 def main():
-    stage_screen()
     moog = MOOG()
     moog.initialize_platform()
     xp = XPlaneUdp()
     try:
         beacon = xp.FindIp()
-        # "sim/cockpit2/controls/total_pitch_ratio"
-        # "sim/cockpit2/controls/total_roll_ratio"
-        #  sim/cockpit2/gauges/indicators/
-        # sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot
-        # sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot
+        frequency = 60  # Hz
         
-        xp.AddDataRef("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot", 1000)
-        xp.AddDataRef("sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot", 1000)
+        xp.AddDataRef("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot", frequency)
+        xp.AddDataRef("sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot", frequency)
         
         roll_avg = np.zeros(roll_window_size)
         pitch_avg = np.zeros(pitch_window_size)
         yaw_avg = np.zeros(yaw_window_size)
         index = 0
         initialized = False
-        frequency = 960  # Hz
 
         while True:
             start_time = time.time()
@@ -65,8 +48,8 @@ def main():
                 pitch = values["sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot"]
                 yaw = 0
                 
-                roll = roll_scale_factor * roll 
-                pitch = pitch_scale_factor * pitch 
+                roll = roll_scale_factor * -roll 
+                pitch = pitch_scale_factor * -pitch 
                 yaw = yaw_scale_factor * yaw 
 
                 roll = max(min(roll, 29), -29)
@@ -111,9 +94,6 @@ def main():
     except XPlaneIpNotFound:
         print("XPlane IP not found. Probably there is no XPlane running in your local network.")
         exit(0)
-
-
-       
 
 if __name__ == "__main__":
     main()
