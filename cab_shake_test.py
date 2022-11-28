@@ -14,8 +14,8 @@ samples= np.linspace(0, duration, resolution*duration) #s
 wave = amplitude*np.sin(2*np.pi*4*samples) + 16383 
 
 
-fig = plt.figure()
-ax1 = plt.subplot()
+# fig = plt.figure()
+# ax1 = plt.subplot()
 
 moog = MOOG()
 
