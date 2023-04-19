@@ -37,9 +37,9 @@
         ``` python assetto_moog_control.py ```
     2. In powershell:
         ``` python .\assetto_moog_control.py ```
-3. To kill in powershell run:
+3. To kill all python processes in powershell run:
     ``` taskkill /F /IM python.exe ```
-    1. You will need to run this before restarting teh code if the base faults (as in an ESTOP)
+    1. You will need to run this before restarting the code if the base faults (as in an ESTOP)
 
 ## Powering Down
 1. Kill all python processes as shown in terminal commands
