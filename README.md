@@ -28,9 +28,9 @@
 ## Terminal Commands
 1. Open a terminal, and navigate to ~/Desktop/"Assetto Corsa Shared Memory"
     1. In bash:
-        ``` cd ~/Desktop/"Assetto Corsa Shared Memory" ```
+        ``` cd ~/driving_sim```
     2. In powershell:
-        ``` cd 'C:\Users\Drive Sim\Desktop\Assetto Corsa Shared Memory' ```
+        ``` cd  ```
     3. This can also be done by opening the VS Code folder
 2. Run assetto_moog_control.py
     1. In bash:

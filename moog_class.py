@@ -61,6 +61,7 @@ class MOOG():
         communication_loop = threading.Thread(target=self.communication_loop)
         communication_loop.start()
         time.sleep(2)
+        print("Ready to initialize")
 
     def communication_loop(self): # publish current command at 60 Hz
         # TODO: Add a lock to ensure that command is not changing while being sent
@@ -69,7 +70,7 @@ class MOOG():
             if len(self._command_buffer) and self._initialized:
                 self._prev_command = self._command
                 self._command = self._command_buffer.pop(0)
-                # print("Received:" +  str(int((self._command >> 64) & 0xFFFF)))
+                print("Received:" +  str(int((self._command >> 64) & 0xFFFF)))
             self.communicate()
             elapsed_time = time.time() -start_time
             # wait to publish at freq Hz
@@ -152,28 +153,34 @@ class MOOG():
     def initialize_platform(self): # TODO: handle errors
         # Initial command
         while self.state != 'IDLE':
-            if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
-                self.reset()
+            print(self.state)
+            # if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
+            self.reset()
+            time.sleep(1)
             self.command_length()
+            print("Stuck in fault mode")
             
         # Change to DOF mode
         while not self.mode: 
             self.dof_mode()
             time.sleep(1)
+            print("Stuck in length mode")
         
         # Continue to send 
         self.command_dof()
         time.sleep(1)
-        
+
+        print("Engaging")        
         # Engage
         while self.state != 'STANDBY':
             self.engage()
             time.sleep(1/60)
-        
+
         # Ready to accept new positions
         while self.state != 'ENGAGED':
             time.sleep(float(2/6000))
             self.command_dof()
+        print("Engaged")
         self._initialized = True
 
     def e_stop(self):
@@ -241,8 +248,9 @@ class MOOG():
 
 
     def reset(self):
-        if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
-            self.command('RESET')
+        # if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
+        self.command('RESET')
+        print("yep")
 
 
     def inhibit(self):

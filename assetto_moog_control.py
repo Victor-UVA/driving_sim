@@ -12,7 +12,7 @@ yaw_window_size = 15  # proposed 30 / old 4
 
 yaw_vel_threshold = 0.5
 
-gear_dampening_scale_factor = 4 # 4 and 10 completelt got rid of it. Maybe we still want some?
+gear_dampening_scale_factor = 4 # 4 and 10 completely got rid of it. Maybe we still want some?
 gear_dampening_window_size = 10
 
 dof_scale = 1.0
@@ -37,22 +37,25 @@ def stage_screen():
 
 
 def main():
-    try:
-        tachometer_serial = serial.Serial(
-            port='COM4',
-            baudrate=115200,
-            timeout=0,
-            rtscts=True
-        )
-    except:
-        print(
-            "Cannot detect tachometer Arduino. Please ensure it is plugged in and try again")
-        return -1
+    # try:
+    #     tachometer_serial = serial.Serial(
+    #         port='COM4',
+    #         baudrate=115200,
+    #         timeout=0,
+    #         rtscts=True
+    #     )
+    # except:
+    #     print(
+    #         "Cannot detect tachometer Arduino. Please ensure it is plugged in and try again")
+    #     return -1
     time.sleep(1)
     stage_screen()
-    asm = accSharedMemory()
     moog = MOOG()
+    # time.sleep(5)
+    moog.reset()
     moog.initialize_platform()
+    asm = accSharedMemory()
+    print("Initialized")
 
     roll_avg = np.zeros(roll_window_size)
     pitch_avg = np.zeros(pitch_window_size)
