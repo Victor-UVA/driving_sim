@@ -52,7 +52,7 @@ class MOOG():
         }
 
         self.text_output = ""
-        
+        self.mode = 0
         self.current_actuator_commands = [1024, 1024, 1024, 1024, 1024, 1024]
 
         self._frequency = 60
@@ -151,26 +151,18 @@ class MOOG():
 
 
     def initialize_platform(self): # TODO: handle errors
-        # Initial command
-        while self.state != 'IDLE':
-            print(self.state)
-            # if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
-            self.reset()
-            time.sleep(1)
-            self.command_length()
-            print("Stuck in fault mode")
-            
-        # Change to DOF mode
-        while not self.mode: 
+        if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
+            print('MOOG must be reset before initialization')
+            return
+        
+        while not self.mode:
             self.dof_mode()
-            time.sleep(1)
-            print("Stuck in length mode")
+            time.sleep(1/60)
         
         # Continue to send 
         self.command_dof()
         time.sleep(1)
 
-        print("Engaging")        
         # Engage
         while self.state != 'STANDBY':
             self.engage()
@@ -196,10 +188,10 @@ class MOOG():
     def park(self):
         # Park
         if self.state == 'ENGAGED' or self.state == 'STANDBY':
-            while self.state != "PARKING" or self.state != "IDLE":
+            while self.state != "PARKING" and self.state != "IDLE":
                 self.command('PARK') # TODO: actuators need to be same length as last command, maybe?
         else:
-            self.text_output = 'PARK valid only in ENGAGED, STANDBY states'
+            print('PARK valid only in ENGAGED, STANDBY states')
 
 
     def low_limit_enable(self):
@@ -248,9 +240,8 @@ class MOOG():
 
 
     def reset(self):
-        # if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
-        self.command('RESET')
-        print("yep")
+        if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
+            self.command('RESET')
 
 
     def inhibit(self):
@@ -265,7 +256,7 @@ class MOOG():
         if self.mode:
             self.command('NEW POSITION', [roll, pitch, heave, surge, yaw, lateral], buffer=buffer)
         else:
-            self.text_output = 'Command rejected: Base currently in Length Mode'
+            print('Command rejected: Base currently in Length Mode')
 
     def command_dof_degrees(self, roll=0, pitch=0, heave=29000, surge=16383, yaw=0, lateral=16383, buffer=False):
         roll = max(min(roll, 29), -29)
