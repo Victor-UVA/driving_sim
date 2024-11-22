@@ -154,8 +154,8 @@ class MOOG():
         if self.state == 'FAULT2' or self.state == 'FAULT3' or self.state == 'INHIBITED':
             print('MOOG must be reset before initialization')
             return
-        
         while not self.mode:
+            print("Waiting to enter DOF mode...")
             self.dof_mode()
             time.sleep(1/60)
         
@@ -165,11 +165,13 @@ class MOOG():
 
         # Engage
         while self.state != 'STANDBY':
+            print("Engaging...")
             self.engage()
             time.sleep(1/60)
 
         # Ready to accept new positions
         while self.state != 'ENGAGED':
+            print("Waiting to be engaged...")
             time.sleep(float(2/6000))
             self.command_dof()
         print("Engaged")
@@ -253,10 +255,10 @@ class MOOG():
 
     
     def command_dof(self, roll=16383, pitch=16383, heave=29000, surge=16383, yaw=16383, lateral=16383, buffer=False):
-        if self.mode:
-            self.command('NEW POSITION', [roll, pitch, heave, surge, yaw, lateral], buffer=buffer)
-        else:
-            print('Command rejected: Base currently in Length Mode')
+        # if self.mode:
+        self.command('NEW POSITION', [roll, pitch, heave, surge, yaw, lateral], buffer=buffer)
+        # else:
+            # print('Command rejected: Base currently in Length Mode')
 
     def command_dof_degrees(self, roll=0, pitch=0, heave=29000, surge=16383, yaw=0, lateral=16383, buffer=False):
         roll = max(min(roll, 29), -29)
