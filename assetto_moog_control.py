@@ -14,7 +14,7 @@ yaw_vel_threshold = 0.5
 gear_dampening_scale_factor = 6 # 4 and 10 completely got rid of it. Maybe we still want some?
 gear_dampening_window_size = 12
 
-dof_scale = 1.0
+dof_scale = 0.35
 roll_scale_factor = 1.0*dof_scale
 pitch_scale_factor = 1.0*dof_scale
 yaw_scale_factor = 1.0*dof_scale

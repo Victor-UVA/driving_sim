@@ -4,7 +4,13 @@ import serial
 import time
 import threading
 # taskkill /F /IM python.exe
+
 class MOOG():
+
+    DOF_MAX = 32767
+    DOF_NEUTRAL = 16383
+    DOF_HEAVE_NEUTRAL = 29000
+    LENGTH_NEUTRAL = 1024
 
     def __init__(self):
         self.ser = serial.Serial(
