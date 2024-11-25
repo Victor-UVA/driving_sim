@@ -23,6 +23,8 @@ class MOOG():
         )
         self.ser.reset_output_buffer()
 
+
+        # TODO: Enumerate these
         self.command_types_hex = {
             'ESTOP':                0xe6, 
             'DISABLE':              0xdc, 
